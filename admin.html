@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Material Orders</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div class="app admin-app">
+    <section id="loginScreen" class="admin-panel">
+      <header class="top-bar">
+        <div>
+          <p class="small-text">Admin Login</p>
+          <h1>Jobs</h1>
+        </div>
+      </header>
+
+      <div class="admin-card">
+        <label class="admin-label">Password
+          <input id="adminPassword" type="password" placeholder="Enter password" />
+        </label>
+        <button id="loginBtn" class="primary-btn" type="button">Login</button>
+        <button id="resetAdminBtn" class="admin-reset-btn" type="button" onclick="resetAdminLogin()">Reset Admin Login</button>
+        <p id="loginError" class="admin-error"></p>
+      </div>
+
+      <p class="admin-note">This page is hidden from the app menu. Open this page directly when you need to edit jobs.</p>
+    </section>
+
+    <section id="adminScreen" class="admin-panel hidden-admin">
+      <header class="top-bar">
+        <div>
+          <p class="small-text">Admin Panel</p>
+          <h1>Manage Jobs</h1>
+        </div>
+        <a class="admin-link" href="index.html">App</a>
+      </header>
+
+      <div class="admin-card">
+        <h2>Add Job</h2>
+        <label class="admin-label">Job Name
+          <input id="newJobName" type="text" placeholder="Example: UF Jax Bay Street" />
+        </label>
+        <button id="addJobBtn" class="primary-btn" type="button">Add Job</button>
+      </div>
+
+      <div class="admin-card">
+        <h2>App Settings</h2>
+        <label class="admin-label">Company / App Title
+          <input id="companyTitleInput" type="text" placeholder="Example: AC General" />
+        </label>
+
+        <label class="admin-label">Main Page Heading
+          <input id="mainPageTitleInput" type="text" placeholder="Example: Jobs" />
+        </label>
+
+        <button id="saveCompanyTitleBtn" class="primary-btn" type="button">Save App Settings</button>
+      </div>
+
+      <div class="admin-card">
+        <h2>Change Admin Password</h2>
+        <label class="admin-label">Current Password
+          <input id="currentPasswordInput" type="password" placeholder="Current password" />
+        </label>
+        <label class="admin-label">New Password
+          <input id="newPasswordInput" type="password" placeholder="New password" />
+        </label>
+        <label class="admin-label">Confirm New Password
+          <input id="confirmPasswordInput" type="password" placeholder="Confirm new password" />
+        </label>
+        <button id="savePasswordBtn" class="primary-btn" type="button">Save New Password</button>
+        <p id="passwordMessage" class="admin-message"></p>
+      </div>
+
+
+      <div class="admin-card">
+        <h2>Export / Import App Data</h2>
+        <p class="admin-note">Use this when you make local admin changes and want those changes to move with your Netlify upload.</p>
+
+        <button id="exportAppDataBtn" class="primary-btn" type="button">Export App Data</button>
+        <button id="reloadAppDataBtn" class="admin-reset-btn" type="button">Reload Uploaded App Data</button>
+
+        <label class="admin-label import-label">Import App Data
+          <input id="importAppDataInput" type="file" accept=".json,application/json" />
+        </label>
+
+        <p class="admin-note">
+          After exporting, put the downloaded <strong>app-data.json</strong> file in the same folder as index.html before uploading to Netlify.
+        </p>
+      </div>
+
+      <div class="admin-card">
+        <h2>Materials</h2>
+        <p class="admin-note">Add, delete, or edit material names, sizes, units, and icons.</p>
+        <button id="openMaterialManagerBtn" class="primary-btn" type="button">Edit / Add Materials</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <h2>Job List</h2>
+          <button id="resetJobsBtn" class="admin-danger-small" type="button">Reset</button>
+        </div>
+        <div id="jobManagerList" class="job-manager-list"></div>
+      </div>
+    </section>
+
+    <section id="materialAdminScreen" class="admin-panel hidden-admin">
+      <header class="top-bar">
+        <div>
+          <p class="small-text">Admin Panel</p>
+          <h1>Materials</h1>
+        </div>
+        <button id="backToAdminBtn" class="admin-link-button" type="button">Back</button>
+      </header>
+
+      <div class="admin-card">
+        <h2>Add Material</h2>
+
+        <label class="admin-label">Category
+          <select id="materialCategorySelect"></select>
+        </label>
+
+        <label class="admin-label">Material Name
+          <input id="materialNameInput" type="text" placeholder="Example: Cable Ties" />
+        </label>
+
+        <label class="admin-label">Icon / Emoji
+          <input id="materialIconInput" type="text" placeholder="Example: 🔩" />
+        </label>
+
+        <label class="admin-label">Size Options
+          <input id="materialOptionsInput" type="text" placeholder='Example: 1/4", 3/8", 1/2"' />
+        </label>
+
+        <label class="admin-label">Unit Options
+          <input id="materialUnitsInput" type="text" placeholder="Example: Box, Each" />
+        </label>
+
+        <button id="addMaterialBtn" class="primary-btn" type="button">Add Material</button>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-head">
+          <h2>Materials In Category</h2>
+        </div>
+        <p class="admin-note">Edit a material below and click Save. Use commas for sizes and units.</p>
+        <div id="materialManagerList" class="material-manager-list"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

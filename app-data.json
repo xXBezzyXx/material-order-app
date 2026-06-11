@@ -1,0 +1,400 @@
+{
+  "exportedAt": "2026-06-11T14:49:11.576Z",
+  "settings": {
+    "companyTitle": "AC General",
+    "mainPageTitle": "AC General",
+    "adminPassword": "password"
+  },
+  "jobs": [
+    {
+      "name": "2650 DCPS Spring Park",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    },
+    {
+      "name": "2601 UF Jax Bay Street",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    },
+    {
+      "name": "2644 NE Park #4",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    },
+    {
+      "name": "2585 SMA",
+      "active": true,
+      "email": "mkenyon@acgeneral.net"
+    },
+    {
+      "name": "2455 RR",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    },
+    {
+      "name": "Other Job",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    }
+  ],
+  "categories": {
+    "hanging": {
+      "label": "Hanging Material",
+      "items": [
+        {
+          "icon": "🔩",
+          "name": "Nuts",
+          "units": [
+            "Box",
+            "Each"
+          ],
+          "options": [
+            "1/4\"",
+            "3/8\"",
+            "1/2\""
+          ]
+        },
+        {
+          "icon": "🔧",
+          "name": "Bolts",
+          "units": [
+            "Box",
+            "Each"
+          ],
+          "options": [
+            "TDC Bolt"
+          ]
+        },
+        {
+          "icon": "⚙️",
+          "name": "Washers",
+          "units": [
+            "Box",
+            "Each"
+          ],
+          "options": [
+            "Fender Washers 1/4\"",
+            "3/8\"",
+            "1/2\""
+          ]
+        },
+        {
+          "icon": "➖",
+          "name": "All Thread",
+          "units": [
+            "Bundle",
+            "Stick"
+          ],
+          "options": [
+            "1/4\"",
+            "3/8\"",
+            "1/2\""
+          ]
+        },
+        {
+          "icon": "▰",
+          "name": "Unistrut",
+          "units": [
+            "Bundle",
+            "Each"
+          ],
+          "options": [
+            "1-5/8 x 1-5/8 10 ft",
+            "1-5/8 x 13/16 x 10 ft"
+          ]
+        },
+        {
+          "icon": "⛓️",
+          "name": "Beam Clamps",
+          "units": [
+            "Box",
+            "Each"
+          ],
+          "options": [
+            "1/4\"",
+            "3/8\"",
+            "1/2\""
+          ]
+        }
+      ]
+    },
+    "fasteners": {
+      "label": "Fasteners",
+      "items": [
+        {
+          "icon": "🪛",
+          "name": "Self Tapping Screws",
+          "options": [
+            "5/16\"",
+            "#14 x 5\" Self-Drilling TEK 5 Curb Screw"
+          ],
+          "units": [
+            "Box",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🔩",
+          "name": "Tapcons",
+          "options": [
+            "1/4\" - 1\"",
+            "1/4\" - 1.5\"",
+            "1/4\" - 2\"",
+            "1/4\" - 2.5\"",
+            "1/4\" - 3\"",
+            "1/4\" - 3.5\"",
+            "1/4\" - 4\""
+          ],
+          "units": [
+            "Box",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🔧",
+          "name": "Anchors",
+          "units": [
+            "Box",
+            "Each"
+          ]
+        }
+      ]
+    },
+    "duct": {
+      "label": "Duct Material",
+      "items": [
+        {
+          "icon": "🪣",
+          "name": "Duct Seal",
+          "units": [
+            "Bucket",
+            "Pallet"
+          ]
+        },
+        {
+          "icon": "◻️",
+          "name": "Foil Tape",
+          "units": [
+            "Each",
+            "Box"
+          ]
+        },
+        {
+          "icon": "〰️",
+          "name": "Flex Duct",
+          "options": [
+            "6\"",
+            "8\"",
+            "10\"",
+            "12\"",
+            "14\"",
+            "16\""
+          ],
+          "units": [
+            "Each"
+          ]
+        },
+        {
+          "icon": "🧱",
+          "name": "Duct Wrap",
+          "units": [
+            "Each"
+          ]
+        },
+        {
+          "icon": "▣",
+          "name": "Drive Cleat",
+          "units": [
+            "Bundle",
+            "Stick"
+          ]
+        },
+        {
+          "icon": "▣",
+          "name": "S-Lock",
+          "units": [
+            "Bundle",
+            "Stick"
+          ]
+        },
+        {
+          "icon": "▣",
+          "name": "Pittsburgh",
+          "units": [
+            "Bundle",
+            "Stick"
+          ]
+        },
+        {
+          "icon": "📦",
+          "name": "Hanger Strap",
+          "units": [
+            "Roll",
+            "Box"
+          ]
+        }
+      ]
+    },
+    "pipe": {
+      "label": "Pipe & Fittings",
+      "items": [
+        {
+          "icon": "│",
+          "name": "Copper Pipe",
+          "units": [
+            "Stick",
+            "Bundle",
+            "Each"
+          ]
+        },
+        {
+          "icon": "│",
+          "name": "PVC Pipe",
+          "units": [
+            "Stick",
+            "Bundle",
+            "Each"
+          ]
+        },
+        {
+          "icon": "◯",
+          "name": "Pipe Insulation",
+          "units": [
+            "Box",
+            "Stick",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🪣",
+          "name": "PVC Glue",
+          "units": [
+            "Can",
+            "Box",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🪣",
+          "name": "Primer",
+          "units": [
+            "Can",
+            "Box",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🔧",
+          "name": "Pipe Clamps",
+          "units": [
+            "Box",
+            "Each"
+          ]
+        }
+      ]
+    },
+    "tools": {
+      "label": "Tools & Consumables",
+      "items": [
+        {
+          "icon": "📌",
+          "name": "Pins",
+          "options": [
+            "1\"",
+            "1-1/4\"",
+            "1-1/2\"",
+            "2\""
+          ],
+          "units": [
+            "Box",
+            "Each"
+          ]
+        },
+        {
+          "icon": "💥",
+          "name": "Shots",
+          "options": [
+            "Green",
+            "Yellow",
+            "Red"
+          ],
+          "units": [
+            "Box",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🪚",
+          "name": "Sawzall Blades",
+          "options": [
+            "Metal",
+            "Demo",
+            "Fine Tooth"
+          ],
+          "units": [
+            "Pack",
+            "Each"
+          ]
+        },
+        {
+          "icon": "🌀",
+          "name": "Drill Bits",
+          "options": [
+            "1/4\"",
+            "3/8\"",
+            "1/2\""
+          ],
+          "units": [
+            "Each",
+            "Pack"
+          ]
+        },
+        {
+          "icon": "⭕",
+          "name": "Hole Saws",
+          "options": [
+            "2\"",
+            "3\"",
+            "4\"",
+            "6\""
+          ],
+          "units": [
+            "Each"
+          ]
+        }
+      ]
+    },
+    "other": {
+      "label": "Other",
+      "items": [
+        {
+          "icon": "•••",
+          "name": "Other Item 1",
+          "units": [
+            "Each",
+            "Box",
+            "Bundle"
+          ]
+        },
+        {
+          "icon": "•••",
+          "name": "Other Item 2",
+          "units": [
+            "Each",
+            "Box",
+            "Bundle"
+          ]
+        },
+        {
+          "icon": "•••",
+          "name": "Other Item 3",
+          "units": [
+            "Each",
+            "Box",
+            "Bundle"
+          ]
+        }
+      ]
+    }
+  }
+}
