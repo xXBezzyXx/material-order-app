@@ -258,8 +258,8 @@ function loadSettingsForm() {
 function saveCompanyTitle() {
   const title = document.getElementById("companyTitleInput").value.trim();
   const mainPageTitle = document.getElementById("mainPageTitleInput").value.trim();
-  const googleAppsScriptUrl = (document.getElementById("googleAppsScriptUrlInput")?.value || document.getElementById("googleAppsScriptUrlInputAppSettings")?.value || "").trim();
-  const orderCcEmail = (document.getElementById("orderCcEmailInput")?.value || document.getElementById("orderCcEmailInputAppSettings")?.value || "").trim();
+  const googleAppsScriptUrl = (document.getElementById("googleAppsScriptUrlInputDashboard")?.value || document.getElementById("googleAppsScriptUrlInput")?.value || document.getElementById("googleAppsScriptUrlInputAppSettings")?.value || "").trim();
+  const orderCcEmail = (document.getElementById("orderCcEmailInputDashboard")?.value || document.getElementById("orderCcEmailInput")?.value || document.getElementById("orderCcEmailInputAppSettings")?.value || "").trim();
 
   if (!title) {
     alert("Company title cannot be blank.");
@@ -277,7 +277,8 @@ function saveCompanyTitle() {
   settings.googleAppsScriptUrl = googleAppsScriptUrl;
   settings.orderCcEmail = orderCcEmail;
   saveSettings(settings);
-  alert("App settings saved.");
+  loadSettingsForm();
+  alert("App settings saved. Email + PDF sending URL is now saved.");
 }
 
 function readFileAsDataUrl(file) {
@@ -763,6 +764,8 @@ function setupAdmin() {
   document.getElementById("saveCompanyTitleBtn").addEventListener("click", saveCompanyTitle);
   const saveEmailPdfSettingsBtn = document.getElementById("saveEmailPdfSettingsBtn");
   if (saveEmailPdfSettingsBtn) saveEmailPdfSettingsBtn.addEventListener("click", saveCompanyTitle);
+  const saveEmailPdfSettingsDashboardBtn = document.getElementById("saveEmailPdfSettingsDashboardBtn");
+  if (saveEmailPdfSettingsDashboardBtn) saveEmailPdfSettingsDashboardBtn.addEventListener("click", saveCompanyTitle);
   const savePdfLetterheadBtn = document.getElementById("savePdfLetterheadBtn");
   if (savePdfLetterheadBtn) savePdfLetterheadBtn.addEventListener("click", savePdfLetterhead);
   const resetPdfLetterheadBtn = document.getElementById("resetPdfLetterheadBtn");

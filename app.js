@@ -770,7 +770,7 @@ function getGoogleAppsScriptUrl() {
 function saveOrderToGoogleSheet(order) {
   const url = getGoogleAppsScriptUrl();
   if (!url) {
-    alert("Google Apps Script URL is missing. Add it in Admin > App Settings.");
+    alert("Google Apps Script URL is missing. Open Admin and paste your /exec URL in the orange Email + PDF Sending Setup box on the dashboard.");
     return Promise.resolve(null);
   }
   try {

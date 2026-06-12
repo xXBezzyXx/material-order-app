@@ -31,7 +31,7 @@
       <div class="admin-layout">
         <aside class="admin-sidebar">
           <div class="admin-brand">
-            <p class="small-text">Material Order App</p>
+            <p class="small-text">Material Order App • Email/PDF Settings Visible</p>
             <h1>Admin</h1>
           </div>
           <nav class="admin-nav">
@@ -56,6 +56,18 @@
                 <h1>Control Center</h1><p class="admin-note left-note">Email / PDF Sending has been added. Use that page or App Settings to paste your Google Apps Script /exec URL.</p>
               </div>
               <a class="admin-link" href="index.html">Open App</a>
+            </div>
+
+            <div class="admin-card admin-wide-card must-see-email-settings" style="border:2px solid #f97316; box-shadow:0 0 0 3px rgba(249,115,22,.18), 0 18px 35px rgba(0,0,0,.22);">
+              <h2>📧 Email + PDF Sending Setup</h2>
+              <p class="admin-note left-note">Paste your Google Apps Script Web App URL here. It must end with <strong>/exec</strong>. This is required before the app can email the branded PDF automatically.</p>
+              <label class="admin-label">Google Apps Script Web App URL
+                <input id="googleAppsScriptUrlInputDashboard" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
+              </label>
+              <label class="admin-label">CC Email For Every Order
+                <input id="orderCcEmailInputDashboard" type="email" placeholder="Example: nmcdonald@acgeneral.net" />
+              </label>
+              <button id="saveEmailPdfSettingsDashboardBtn" class="primary-btn" type="button">Save Email + PDF Settings</button>
             </div>
 
             <div class="admin-dashboard-grid">
@@ -221,7 +233,7 @@
     <section id="materialAdminScreen" class="admin-panel hidden-admin">
       <div class="admin-layout">
         <aside class="admin-sidebar">
-          <div class="admin-brand"><p class="small-text">Material Order App</p><h1>Admin</h1></div>
+          <div class="admin-brand"><p class="small-text">Material Order App • Email/PDF Settings Visible</p><h1>Admin</h1></div>
           <nav class="admin-nav"><button id="backToAdminBtn" type="button">Dashboard</button></nav>
           <a class="admin-link admin-sidebar-link" href="index.html">Open App</a>
         </aside>
