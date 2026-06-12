@@ -764,14 +764,27 @@ const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6eWk
 
 function saveOrderToGoogleSheet(order) {
   try {
-    fetch(GOOGLE_SHEET_WEB_APP_URL, {
+    return fetch(GOOGLE_SHEET_WEB_APP_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(order)
-    }).catch(error => console.warn("Google Sheet save failed.", error));
+    }).catch(error => {
+      console.warn("Google Sheet save failed.", error);
+      return null;
+    });
   } catch (error) {
     console.warn("Google Sheet save failed.", error);
+    return Promise.resolve(null);
+  }
+}
+
+function openEmailClientFallback(toEmail, subject, body) {
+  try {
+    const mailto = `mailto:${encodeURIComponent(toEmail || "")} ?subject=${encodeURIComponent(subject || "Material Order")}&body=${encodeURIComponent(body || "")}`.replace("%20?", "?");
+    window.location.href = mailto;
+  } catch (error) {
+    console.warn("Could not open email app.", error);
   }
 }
 
@@ -859,7 +872,7 @@ async function sendEmail() {
   const originalText = submitBtn ? submitBtn.innerHTML : "";
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = "Sending PDF...";
+    submitBtn.innerHTML = "Sending PDF + Opening Email...";
   }
 
   const orderNumber = makeOrderNumber();
@@ -891,13 +904,18 @@ async function sendEmail() {
     pdfLetterhead: await getPdfLetterheadForEmail()
   };
 
-  saveOrderToGoogleSheet(payload);
+  await saveOrderToGoogleSheet(payload);
+
+  // Open the user's email app like the older versions did.
+  // The PDF attachment is sent by Google Apps Script; mailto cannot attach files,
+  // but this gives the user a visible email draft/backup.
+  openEmailClientFallback(payload.toEmail, subject, body);
 
   cart = [];
   renderCartPreview();
   document.getElementById("notes").value = "";
 
-  alert("Order submitted. The job contact will receive the branded PDF attachment. Make sure your Google Apps Script is updated to v47.");
+  alert("Order submitted. A branded PDF is sent through Google Apps Script, and your email app has been opened as a backup copy.");
   showScreen("jobsScreen");
 
   if (submitBtn) {
