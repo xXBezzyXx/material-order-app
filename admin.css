@@ -781,3 +781,5 @@
     flex-direction: column;
   }
 }
+
+.admin-divider { border: 0; border-top: 1px solid rgba(148,163,184,0.25); margin: 24px 0; }

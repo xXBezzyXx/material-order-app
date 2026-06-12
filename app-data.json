@@ -16,7 +16,9 @@
       "documentTitle": "MATERIAL PROCUREMENT REQUEST",
       "footerMessage": "Thank you for using the Material Order App!",
       "companyName": "AC General"
-    }
+    },
+    "googleAppsScriptUrl": "",
+    "orderCcEmail": "nmcdonald@acgeneral.net"
   },
   "jobs": [
     {

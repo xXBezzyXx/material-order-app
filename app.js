@@ -21,6 +21,8 @@ function getAppSettings() {
   const defaults = {
     companyTitle: "AC General",
     mainPageTitle: "Jobs",
+    googleAppsScriptUrl: "",
+    orderCcEmail: "nmcdonald@acgeneral.net",
     pdfLetterhead: DEFAULT_PDF_LETTERHEAD
   };
 
@@ -760,11 +762,19 @@ function saveOrderToBoard(order) {
 }
 
 
-const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6eWkypZ_O_QoaldUrQvp3KfwsjoawjalQHLftzyI1e0hg2u1MbrQdlGTkDUnEYayFlA/exec";
+function getGoogleAppsScriptUrl() {
+  const settings = getAppSettings();
+  return (settings.googleAppsScriptUrl || "").trim();
+}
 
 function saveOrderToGoogleSheet(order) {
+  const url = getGoogleAppsScriptUrl();
+  if (!url) {
+    alert("Google Apps Script URL is missing. Add it in Admin > App Settings.");
+    return Promise.resolve(null);
+  }
   try {
-    return fetch(GOOGLE_SHEET_WEB_APP_URL, {
+    return fetch(url, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -872,7 +882,7 @@ async function sendEmail() {
   const originalText = submitBtn ? submitBtn.innerHTML : "";
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = "Sending PDF + Opening Email...";
+    submitBtn.innerHTML = "Sending PDF Email...";
   }
 
   const orderNumber = makeOrderNumber();
@@ -898,6 +908,7 @@ async function sendEmail() {
   const payload = {
     ...orderRecord,
     toEmail: getJobEmail(job),
+    ccEmail: (getAppSettings().orderCcEmail || "nmcdonald@acgeneral.net"),
     emailSubject: subject,
     emailBody: body,
     sendPdfEmail: true,
@@ -906,16 +917,11 @@ async function sendEmail() {
 
   await saveOrderToGoogleSheet(payload);
 
-  // Open the user's email app like the older versions did.
-  // The PDF attachment is sent by Google Apps Script; mailto cannot attach files,
-  // but this gives the user a visible email draft/backup.
-  openEmailClientFallback(payload.toEmail, subject, body);
-
   cart = [];
   renderCartPreview();
   document.getElementById("notes").value = "";
 
-  alert("Order submitted. A branded PDF is sent through Google Apps Script, and your email app has been opened as a backup copy.");
+  alert("Order submitted. The branded PDF email was sent through Google Apps Script.");
   showScreen("jobsScreen");
 
   if (submitBtn) {

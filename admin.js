@@ -18,6 +18,8 @@ const DEFAULT_SETTINGS = {
   companyTitle: "AC General",
   mainPageTitle: "Jobs",
   adminPassword: DEFAULT_PASSWORD,
+  googleAppsScriptUrl: "",
+  orderCcEmail: "nmcdonald@acgeneral.net",
   pdfLetterhead: DEFAULT_PDF_LETTERHEAD
 };
 
@@ -238,6 +240,8 @@ function loadSettingsForm() {
   document.getElementById("companyTitleInput").value = settings.companyTitle || DEFAULT_SETTINGS.companyTitle;
   const main = document.getElementById("mainPageTitleInput");
   if (main) main.value = settings.mainPageTitle || "Jobs";
+  setValueIfExists("googleAppsScriptUrlInput", settings.googleAppsScriptUrl || DEFAULT_SETTINGS.googleAppsScriptUrl);
+  setValueIfExists("orderCcEmailInput", settings.orderCcEmail || DEFAULT_SETTINGS.orderCcEmail);
 
   setValueIfExists("pdfTitleLine1Input", pdf.titleLine1);
   setValueIfExists("pdfTitleLine2Input", pdf.titleLine2);
@@ -254,6 +258,8 @@ function loadSettingsForm() {
 function saveCompanyTitle() {
   const title = document.getElementById("companyTitleInput").value.trim();
   const mainPageTitle = document.getElementById("mainPageTitleInput").value.trim();
+  const googleAppsScriptUrl = (document.getElementById("googleAppsScriptUrlInput")?.value || document.getElementById("googleAppsScriptUrlInputAppSettings")?.value || "").trim();
+  const orderCcEmail = (document.getElementById("orderCcEmailInput")?.value || document.getElementById("orderCcEmailInputAppSettings")?.value || "").trim();
 
   if (!title) {
     alert("Company title cannot be blank.");
@@ -268,6 +274,8 @@ function saveCompanyTitle() {
   const settings = getSettings();
   settings.companyTitle = title;
   settings.mainPageTitle = mainPageTitle;
+  settings.googleAppsScriptUrl = googleAppsScriptUrl;
+  settings.orderCcEmail = orderCcEmail;
   saveSettings(settings);
   alert("App settings saved.");
 }
@@ -753,6 +761,8 @@ function setupAdmin() {
 
   document.getElementById("resetJobsBtn").addEventListener("click", resetJobs);
   document.getElementById("saveCompanyTitleBtn").addEventListener("click", saveCompanyTitle);
+  const saveEmailPdfSettingsBtn = document.getElementById("saveEmailPdfSettingsBtn");
+  if (saveEmailPdfSettingsBtn) saveEmailPdfSettingsBtn.addEventListener("click", saveCompanyTitle);
   const savePdfLetterheadBtn = document.getElementById("savePdfLetterheadBtn");
   if (savePdfLetterheadBtn) savePdfLetterheadBtn.addEventListener("click", savePdfLetterhead);
   const resetPdfLetterheadBtn = document.getElementById("resetPdfLetterheadBtn");
@@ -891,7 +901,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* V44 Google Sheet Admin Orders */
-const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6eWkypZ_O_QoaldUrQvp3KfwsjoawjalQHLftzyI1e0hg2u1MbrQdlGTkDUnEYayFlA/exec";
+function getGoogleAppsScriptUrl() {
+  const settings = getSettings();
+  return (settings.googleAppsScriptUrl || DEFAULT_SETTINGS.googleAppsScriptUrl || "").trim();
+}
 
 function parseSheetItems(value) {
   if (Array.isArray(value)) return value;
@@ -929,7 +942,7 @@ async function loadAdminSheetOrders() {
   list.innerHTML = "<p class='admin-note'>Loading shared orders...</p>";
 
   try {
-    const response = await fetch(GOOGLE_SHEET_WEB_APP_URL + "?v=" + Date.now());
+    const response = await fetch(getGoogleAppsScriptUrl() + "?v=" + Date.now());
     const data = await response.json();
     const orders = Array.isArray(data.orders) ? data.orders.reverse() : [];
 
@@ -982,7 +995,7 @@ async function loadAdminSheetOrders() {
 
 async function updateSheetOrderStatus(id, status) {
   try {
-    await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+    await fetch(getGoogleAppsScriptUrl(), {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -1001,7 +1014,7 @@ async function updateSheetOrderStatus(id, status) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const refreshBtn = document.getElementById("refreshAdminOrdersBtn");
+  const refreshBtn = document.getElementById("refreshOrdersBtn");
   if (refreshBtn) refreshBtn.addEventListener("click", loadAdminSheetOrders);
   setTimeout(loadAdminSheetOrders, 500);
 });
