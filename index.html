@@ -9,49 +9,48 @@
 <body>
   <div class="app">
     <section id="jobsScreen" class="screen active">
-      <header class="top-bar"><div><p class="small-text">Material Ordering</p><h1 id="mainPageTitle">Jobs</h1></div><button class="circle-btn" onclick="showScreen('orderScreen')">+</button></header>
+      <header class="top-bar">
+        <div>
+          <p class="small-text">Material Ordering</p>
+          <h1 id="mainPageTitle">Jobs</h1>
+        </div>
+        <button class="circle-btn" onclick="showScreen('orderScreen')" type="button">+</button>
+      </header>
       <div class="search-box"><span>⌕</span><input id="jobSearch" type="search" placeholder="Search jobs" /></div>
       <div id="jobList" class="job-list"></div>
     </section>
+
     <section id="orderScreen" class="screen">
-      <header class="top-bar center"><button class="back-btn" onclick="showScreen('jobsScreen')">‹</button><h2>New Order</h2><span></span></header>
+      <header class="top-bar center"><button class="back-btn" onclick="showScreen('jobsScreen')" type="button">‹</button><h2>New Order</h2><span></span></header>
       <div class="step"><div class="step-number">1</div><div class="step-body"><p>Select Job</p><select id="selectedJob"></select></div></div>
       <div class="step"><div class="step-number">2</div><div class="step-body"><p>Select Material</p><div id="categoryTabs" class="chips"></div></div></div>
       <div id="materialList" class="material-list"></div>
-
       <div class="cart-preview-card">
-        <div class="cart-preview-head">
-          <span>Cart</span>
-          <strong id="cartCount">0 items</strong>
-        </div>
+        <div class="cart-preview-head"><span>Cart</span><strong id="cartCount">0 items</strong></div>
         <div id="cartPreview" class="cart-preview-empty">Nothing added yet.</div>
       </div>
       <div class="step"><div class="step-number">3</div><div class="step-body"><p>Requested By</p><input id="requestedBy" type="text" placeholder="Your name" /></div></div>
-      <label class="notes-box">Additional Notes<textarea id="notes" rows="3" placeholder="Needed date, delivery location, sizes, etc."></textarea></label>
+      <label class="notes-box">Additional Notes<textarea id="notes" rows="5" placeholder="If material is not listed in the app, type it here. Include size, quantity, delivery location, needed date, or any special instructions."></textarea></label>
       <button id="reviewOrderBtn" class="primary-btn" type="button">Review Order <span>→</span></button>
     </section>
-    <section id="reviewScreen" class="screen">
-      <header class="top-bar center"><button class="back-btn" onclick="showScreen('orderScreen')">‹</button><h2>Review Order</h2><span></span></header>
-      <div class="review-job-card"><div class="job-image">🏗️</div><div><h3 id="reviewJobName">Job Name</h3><span class="status-dot">● Active</span></div></div>
-      
 
-      <div class="priority-review-card">
-        <label class="review-priority-label">
-          Add Priority
-          <select id="reviewPrioritySelect" class="review-priority-select">
-            <option value="Normal">Normal</option>
-            <option value="Rush">Rush</option>
-            <option value="Emergency">Emergency</option>
-          </select>
-        </label>
-      </div>
-<div class="review-card"><h3 id="reviewCategory">Items Requested</h3><div id="reviewItems"></div></div>
+    <section id="reviewScreen" class="screen">
+      <header class="top-bar center"><button class="back-btn" onclick="showScreen('orderScreen')" type="button">‹</button><h2>Review Order</h2><span></span></header>
+      <div class="review-job-card"><div class="job-image">🏗️</div><div><h3 id="reviewJobName">Job Name</h3><span class="status-dot">● Active</span></div></div>
+      <div class="priority-review-card"><label class="review-priority-label">Add Priority<select id="reviewPrioritySelect" class="review-priority-select"><option value="Normal">Normal</option><option value="Rush">Rush</option><option value="Emergency">Emergency</option></select></label></div>
+      <div class="review-card"><h3 id="reviewCategory">Items Requested</h3><div id="reviewItems"></div></div>
       <div class="review-card"><h3>Additional Notes</h3><p id="reviewNotes">None</p></div>
       <div class="total-card"><span>Total Items</span><strong id="reviewTotal">0</strong></div>
       <button id="submitEmailBtn" class="primary-btn send" type="button">Submit Order <span>✈</span></button>
-      <p class="send-note">This opens an email to Nicholas with the order details.</p>
+      <p class="send-note">This sends a branded PDF material form to the job contact.</p>
     </section>
-    <nav class="bottom-nav"><button onclick="showScreen('jobsScreen')" class="nav-btn active" data-screen="jobsScreen"><span>▣</span>Jobs</button><button onclick="showScreen('orderScreen')" class="nav-btn" data-screen="orderScreen"><span>＋</span>Order</button><button onclick="showScreen('reviewScreen')" class="nav-btn" data-screen="reviewScreen"><span>✓</span>Review</button></nav>
+
+    <nav class="bottom-nav">
+      <button onclick="showScreen('jobsScreen')" class="nav-btn active" data-screen="jobsScreen" type="button"><span>▣</span>Jobs</button>
+      <button onclick="showScreen('orderScreen')" class="nav-btn" data-screen="orderScreen" type="button"><span>＋</span>Order</button>
+      <a href="order-board.html" class="nav-btn"><span>▤</span>Orders</a>
+      <a href="admin.html" class="nav-btn"><span>⚙</span>Admin</a>
+    </nav>
   </div>
   <script src="app.js"></script>
 </body>

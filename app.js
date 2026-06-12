@@ -1,8 +1,27 @@
 
+const DEFAULT_PDF_LETTERHEAD = {
+  leftLogo: "pdf-assets/ac-general-logo.png",
+  rightLogo: "pdf-assets/gator-100-logo.png",
+  titleLine1: "Commercial Mechanical",
+  titleLine2: "Industrial Refrigeration",
+  address: "401 Agmac Avenue, Jacksonville, FL 32254",
+  phoneFax: "Phone (904) 783-4200  Fax (904) 781-0806",
+  website: "acgeneral.net",
+  license: "CMC1250807",
+  companyName: "AC General",
+  documentTitle: "MATERIAL PROCUREMENT REQUEST",
+  footerMessage: "Thank you for using the Material Order App!"
+};
+
+function mergePdfLetterhead(settings) {
+  return { ...DEFAULT_PDF_LETTERHEAD, ...(settings && settings.pdfLetterhead ? settings.pdfLetterhead : {}) };
+}
+
 function getAppSettings() {
   const defaults = {
     companyTitle: "AC General",
-    mainPageTitle: "Jobs"
+    mainPageTitle: "Jobs",
+    pdfLetterhead: DEFAULT_PDF_LETTERHEAD
   };
 
   const saved = localStorage.getItem("materialOrderSettings");
@@ -12,7 +31,8 @@ function getAppSettings() {
   }
 
   try {
-    return { ...defaults, ...JSON.parse(saved) };
+    const parsed = JSON.parse(saved);
+    return { ...defaults, ...parsed, pdfLetterhead: mergePdfLetterhead(parsed) };
   } catch {
     return defaults;
   }
@@ -21,12 +41,12 @@ function getAppSettings() {
 function applyAppSettings() {
   const settings = getAppSettings();
   const companyTitle = document.getElementById("companyTitle");
-  if (companyTitle) companyTitle.textContent = settings.companyTitle || "AC General";
+  if (companyTitle) companyTitle.textContent = settings.companyTitle || DEFAULT_SETTINGS.companyTitle;
 
   const mainPageTitle = document.getElementById("mainPageTitle");
   if (mainPageTitle) mainPageTitle.textContent = settings.mainPageTitle || "Jobs";
 
-  document.title = `${settings.companyTitle || "AC General"} - Material Orders`;
+  document.title = `${settings.companyTitle || DEFAULT_SETTINGS.companyTitle} - Material Orders`;
 }
 
 const ORDER_EMAIL = "nmcdonald@acgeneral.net";
@@ -132,32 +152,35 @@ const DEFAULT_CATEGORIES = {
       { icon: "💥", name: "Shots", options: ["Green", "Yellow", "Red"], units: ["Box", "Each"] },
       { icon: "🪚", name: "Sawzall Blades", options: ["Metal", "Demo", "Fine Tooth"], units: ["Pack", "Each"] },
       { icon: "🌀", name: "Drill Bits", options: ['1/4"', '3/8"', '1/2"'], units: ["Each", "Pack"] },
-      { icon: "⭕", name: "Hole Saws", options: ['2"', '3"', '4"', '6"'], units: ["Each"] }
-    ]
-  },
-  other: {
-    label: "Other",
-    items: [
-      { icon: "•••", name: "Other Item 1", units: ["Each", "Box", "Bundle"] },
-      { icon: "•••", name: "Other Item 2", units: ["Each", "Box", "Bundle"] },
-      { icon: "•••", name: "Other Item 3", units: ["Each", "Box", "Bundle"] }
+      { icon: "⭕", name: "Hole Saws", options: ['2"', '3"', '4"', '6"'], units: ["Each"] },
+      { icon: "🧻", name: "Blue Wrap", options: ['24"', '36"'], units: ["Roll", "Each"] },
+      { icon: "🧤", name: "Gloves", units: ["Box", "Pair", "Each"] },
+      { icon: "🥽", name: "Safety Glasses", units: ["Box", "Pair", "Each"] },
     ]
   }
 };
+
+function cleanCategories(categories) {
+  const cleaned = categories && typeof categories === "object" ? { ...categories } : {};
+  delete cleaned.other;
+  return cleaned;
+}
 
 function getStoredCategories() {
   const saved = localStorage.getItem("materialOrderCategories");
 
   if (!saved) {
-    localStorage.setItem("materialOrderCategories", JSON.stringify(DEFAULT_CATEGORIES));
-    return JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+    localStorage.setItem("materialOrderCategories", JSON.stringify(cleanCategories(DEFAULT_CATEGORIES)));
+    return JSON.parse(JSON.stringify(cleanCategories(DEFAULT_CATEGORIES)));
   }
 
   try {
     const categories = JSON.parse(saved);
-    return categories && typeof categories === "object" ? categories : JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+    const cleaned = categories && typeof categories === "object" ? cleanCategories(categories) : cleanCategories(DEFAULT_CATEGORIES);
+    localStorage.setItem("materialOrderCategories", JSON.stringify(cleaned));
+    return cleaned;
   } catch {
-    return JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+    return JSON.parse(JSON.stringify(cleanCategories(DEFAULT_CATEGORIES)));
   }
 }
 
@@ -174,16 +197,19 @@ let activeCategory = "hanging";
 let selectedOptions = {};
 let selectedUnits = {};
 let draftQty = {};
+let qtyResetLock = {};
+let customDrafts = {};
 let cart = [];
 let selectedPriority = "Normal";
+let currentSelectedJob = localStorage.getItem("materialOrderSelectedJob") || "";
 
 function safeText(text) {
   return String(text || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .split("&").join("&amp;")
+    .split("<").join("&lt;")
+    .split(">").join("&gt;")
+    .split('"').join("&quot;")
+    .split("'").join("&#039;");
 }
 
 function showScreen(id) {
@@ -221,8 +247,19 @@ function updatePriorityColor() {
   }
 }
 
+function setSelectedJob(job) {
+  currentSelectedJob = job || "";
+  if (currentSelectedJob) {
+    localStorage.setItem("materialOrderSelectedJob", currentSelectedJob);
+  }
+  const selectedJob = document.getElementById("selectedJob");
+  if (selectedJob && currentSelectedJob) {
+    selectedJob.value = currentSelectedJob;
+  }
+}
+
 function selectJob(job) {
-  document.getElementById("selectedJob").value = job;
+  setSelectedJob(job);
   showScreen("orderScreen");
 }
 
@@ -230,14 +267,17 @@ function renderJobs() {
   const searchInput = document.getElementById("jobSearch");
   const q = searchInput ? searchInput.value.toLowerCase() : "";
   const list = getActiveJobs().filter(job => job.toLowerCase().includes(q));
+  const jobList = document.getElementById("recentOrders") || document.getElementById("jobList");
+  if (!jobList) return;
 
-  document.getElementById("jobList").innerHTML = list.map(job => `
+  jobList.innerHTML = list.slice(0, 8).map((job, index) => `
     <button class="job-card" data-job="${safeText(job)}" type="button">
-      <div class="job-thumb">🏢</div>
+      <div class="job-thumb">📋</div>
       <div>
         <h3>${safeText(job)}</h3>
-        <span class="status-dot">● Active</span>
+        <span class="job-meta">Material order ready</span>
       </div>
+      <span class="job-status">● Active</span>
       <div class="chev">›</div>
     </button>
   `).join("");
@@ -248,16 +288,61 @@ function renderJobs() {
 }
 
 function renderJobSelect() {
-  document.getElementById("selectedJob").innerHTML = getActiveJobs().map(job => `<option>${safeText(job)}</option>`).join("");
+  const selectedJob = document.getElementById("selectedJob");
+  if (!selectedJob) return;
+
+  const jobs = getActiveJobs();
+  const previousValue = currentSelectedJob || selectedJob.value || localStorage.getItem("materialOrderSelectedJob") || jobs[0] || "";
+
+  selectedJob.innerHTML = jobs.map(job => `<option value="${safeText(job)}">${safeText(job)}</option>`).join("");
+
+  if (previousValue && jobs.includes(previousValue)) {
+    selectedJob.value = previousValue;
+    currentSelectedJob = previousValue;
+  } else if (jobs.length) {
+    selectedJob.value = jobs[0];
+    currentSelectedJob = jobs[0];
+  }
+
+  if (currentSelectedJob) {
+    localStorage.setItem("materialOrderSelectedJob", currentSelectedJob);
+  }
+
+  selectedJob.onchange = () => setSelectedJob(selectedJob.value);
 }
 
 function renderCategories() {
-  document.getElementById("categoryTabs").innerHTML = Object.entries(categories).map(([key, cat]) => `
-    <button class="chip ${key === activeCategory ? "active" : ""}" data-category="${key}" type="button">${safeText(cat.label)}</button>
-  `).join("");
+  if (!categories[activeCategory]) activeCategory = Object.keys(categories)[0] || "hanging";
+  const tabs = document.getElementById("categoryTabs");
+  if (tabs) {
+    tabs.innerHTML = Object.entries(categories).map(([key, cat]) => `
+      <button class="chip ${key === activeCategory ? "active" : ""}" data-category="${key}" type="button">${safeText(cat.label)}</button>
+    `).join("");
 
-  document.querySelectorAll(".chip").forEach(button => {
-    button.addEventListener("click", () => setCategory(button.dataset.category));
+    document.querySelectorAll(".chip").forEach(button => {
+      button.addEventListener("click", () => setCategory(button.dataset.category));
+    });
+  }
+  renderQuickOrder();
+}
+
+function renderQuickOrder() {
+  const quick = document.getElementById("quickOrder");
+  if (!quick) return;
+  const icons = ["🔩", "▰", "│", "◉", "•••"];
+  const entries = Object.entries(categories).slice(0, 5);
+  quick.innerHTML = entries.map(([key, cat], index) => `
+    <button class="quick-card ${key === activeCategory ? "active" : ""}" data-category="${key}" type="button">
+      <span>${icons[index] || "📦"}</span>${safeText(cat.label)}
+    </button>
+  `).join("");
+  document.querySelectorAll(".quick-card").forEach(button => {
+    button.addEventListener("click", () => {
+      activeCategory = button.dataset.category;
+      showScreen("orderScreen");
+      renderCategories();
+      renderMaterials();
+    });
   });
 }
 
@@ -295,6 +380,17 @@ function getDraftQty(item) {
   return draftQty[key];
 }
 
+function getCustomDraft(item) {
+  const key = baseKey(item);
+  return customDrafts[key] || "";
+}
+
+function changeCustomDraft(itemName, value) {
+  const item = getItem(activeCategory, itemName);
+  if (!item) return;
+  customDrafts[baseKey(item)] = value;
+}
+
 function changeOption(itemName, value) {
   const item = getItem(activeCategory, itemName);
   if (!item) return;
@@ -306,6 +402,34 @@ function changeUnit(itemName, value) {
   const item = getItem(activeCategory, itemName);
   if (!item) return;
   selectedUnits[baseKey(item)] = value;
+}
+
+
+function forceResetAllQtyInputs() {
+  Object.keys(draftQty).forEach(key => {
+    draftQty[key] = 0;
+    qtyResetLock[key] = true;
+  });
+
+  document.querySelectorAll(".qty-number-input").forEach(input => {
+    input.value = 0;
+    input.defaultValue = 0;
+    input.setAttribute("value", "0");
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll(".qty-number-input").forEach(input => {
+      input.value = 0;
+      input.defaultValue = 0;
+      input.setAttribute("value", "0");
+    });
+  }, 100);
+
+  setTimeout(() => {
+    Object.keys(qtyResetLock).forEach(key => qtyResetLock[key] = false);
+    Object.keys(draftQty).forEach(key => draftQty[key] = 0);
+    renderMaterials();
+  }, 300);
 }
 
 function changeDraftQty(itemName, amount) {
@@ -324,13 +448,27 @@ function addToCart(itemName) {
   const key = baseKey(item);
   const qty = draftQty[key] || 0;
   if (qty <= 0) {
+    const selectedJob = document.getElementById("selectedJob");
+    if (selectedJob) setSelectedJob(selectedJob.value);
     alert("Please add a quantity before adding to cart.");
+    showScreen("orderScreen");
     return;
   }
 
   const option = getSelectedOption(item);
   const unit = getSelectedUnit(item);
-  const cartKey = `${activeCategory}:${item.name}:${option}:${unit}`;
+  const customText = item.custom ? getCustomDraft(item).trim() : "";
+
+  if (item.custom && !customText) {
+    alert("Please type the custom material you need before adding to cart.");
+    showScreen("orderScreen");
+    return;
+  }
+
+  const orderItemName = item.custom ? customText : item.name;
+  const cartKey = item.custom
+    ? `${activeCategory}:${item.name}:${customText}:${unit}`
+    : `${activeCategory}:${item.name}:${option}:${unit}`;
 
   const existing = cart.find(line => line.cartKey === cartKey);
   if (existing) {
@@ -340,14 +478,16 @@ function addToCart(itemName) {
       cartKey,
       category: activeCategory,
       categoryLabel: categories[activeCategory].label,
-      name: item.name,
-      option,
+      name: orderItemName,
+      option: item.custom ? "" : option,
       unit,
-      qty
+      qty,
+      custom: !!item.custom
     });
   }
 
   draftQty[key] = 0;
+  if (item.custom) customDrafts[key] = "";
   renderMaterials();
   renderCartPreview();
 }
@@ -395,13 +535,39 @@ function renderCartPreview() {
   });
 }
 
-function renderMaterials() {
-  const items = categories[activeCategory].items;
 
-  document.getElementById("materialList").innerHTML = items.map(item => {
+function renderMaterialIcon(icon) {
+  const value = String(icon || "");
+  if (
+    value.includes("/") ||
+    value.endsWith(".png") ||
+    value.endsWith(".jpg") ||
+    value.endsWith(".jpeg") ||
+    value.endsWith(".svg") ||
+    value.endsWith(".webp")
+  ) {
+    return `<img class="material-icon-img" src="${safeText(value)}" alt="" loading="lazy" />`;
+  }
+  return safeText(value);
+}
+
+function renderMaterials() {
+  if (!categories[activeCategory]) activeCategory = Object.keys(categories)[0] || "hanging";
+  const items = categories[activeCategory].items;
+  const materialList = document.getElementById("materialList");
+  if (!materialList) return;
+
+  materialList.innerHTML = items.map(item => {
     const qty = getDraftQty(item);
 
-    const sizeSelect = item.options ? `
+    const customInput = item.custom ? `
+      <label class="select-label custom-material-label">
+        Material Needed
+        <textarea class="custom-material-input" data-item="${safeText(item.name)}" placeholder="${safeText(item.placeholder || "Type what material you need here...")}">${safeText(getCustomDraft(item))}</textarea>
+      </label>
+    ` : "";
+
+    const sizeSelect = !item.custom && item.options ? `
       <label class="select-label">
         Size
         <select class="variant-select" data-item="${safeText(item.name)}">
@@ -421,23 +587,30 @@ function renderMaterials() {
 
     return `
       <div class="material-row cart-style-row">
-        <div class="material-icon">${item.icon}</div>
+        <div class="material-icon">${renderMaterialIcon(item.icon)}</div>
         <div class="material-info">
           <div class="material-name">${safeText(item.name)}</div>
-          <div class="select-row">
+          ${customInput}
+          <div class="select-row mobile-full-controls">
             ${sizeSelect}
             ${unitSelect}
           </div>
-          <button class="add-cart-btn" data-item="${safeText(item.name)}" type="button">Add to Cart</button>
         </div>
+
         <div class="qty-control">
           <button class="minus-btn" data-item="${safeText(item.name)}" type="button">−</button>
-          <span>${qty}</span>
+          <input class="qty-number-input" data-qty-number="${safeText(item.name)}" type="number" inputmode="numeric" pattern="[0-9]*" min="0" value="${qty}" />
           <button class="plus plus-btn" data-item="${safeText(item.name)}" type="button">+</button>
         </div>
+
+        <button class="add-cart-btn add-cart-wide" data-item="${safeText(item.name)}" type="button">Add to Cart</button>
       </div>
     `;
   }).join("");
+
+  document.querySelectorAll(".custom-material-input").forEach(input => {
+    input.addEventListener("input", () => changeCustomDraft(input.dataset.item, input.value));
+  });
 
   document.querySelectorAll(".variant-select").forEach(select => {
     select.addEventListener("change", () => changeOption(select.dataset.item, select.value));
@@ -455,8 +628,73 @@ function renderMaterials() {
     button.addEventListener("click", () => changeDraftQty(button.dataset.item, 1));
   });
 
+
+  document.querySelectorAll(".qty-number-input").forEach(input => {
+    input.addEventListener("input", () => {
+      const item = getItem(activeCategory, input.dataset.qtyNumber);
+      if (!item) return;
+      const key = baseKey(item);
+      if (qtyResetLock[key]) {
+        input.value = 0;
+        draftQty[key] = 0;
+        return;
+      }
+      let value = Number(input.value);
+      if (!Number.isFinite(value) || value < 0) value = 0;
+      draftQty[key] = Math.floor(value);
+    });
+
+    input.addEventListener("change", () => {
+      const item = getItem(activeCategory, input.dataset.qtyNumber);
+      if (!item) return;
+      const key = baseKey(item);
+      if (qtyResetLock[key]) {
+        input.value = 0;
+        draftQty[key] = 0;
+        return;
+      }
+      let value = Number(input.value);
+      if (!Number.isFinite(value) || value < 0) value = 0;
+      value = Math.floor(value);
+      draftQty[key] = value;
+      input.value = value;
+    });
+
+    input.addEventListener("focus", () => {
+      setTimeout(() => input.select(), 0);
+    });
+  });
+
   document.querySelectorAll(".add-cart-btn").forEach(button => {
-    button.addEventListener("click", () => addToCart(button.dataset.item));
+    button.addEventListener("click", () => {
+      const item = getItem(activeCategory, button.dataset.item);
+      if (!item) return;
+
+      const row = button.closest(".material-row");
+      const input = row ? row.querySelector(".qty-number-input") : null;
+      const key = baseKey(item);
+
+      // Read the typed phone/keyboard value right before adding.
+      if (input) {
+        let value = Number(input.value);
+        if (!Number.isFinite(value) || value < 0) value = 0;
+        draftQty[key] = Math.floor(value);
+        input.blur();
+      }
+
+      addToCart(button.dataset.item);
+      forceResetAllQtyInputs();
+
+      // Force this item back to zero after adding.
+      draftQty[key] = 0;
+      qtyResetLock[key] = true;
+
+      setTimeout(() => {
+        draftQty[key] = 0;
+        qtyResetLock[key] = false;
+        renderMaterials();
+      }, 50);
+    });
   });
 }
 
@@ -464,6 +702,8 @@ function getOrderItems() {
   return cart.map(item => ({
     category: item.category,
     categoryLabel: item.categoryLabel,
+    material: item.name,
+    option: item.option || "",
     name: displayName(item),
     qty: item.qty,
     unit: item.unit
@@ -507,7 +747,101 @@ function goReview() {
   showScreen("reviewScreen");
 }
 
-function sendEmail() {
+function saveOrderToBoard(order) {
+  try {
+    const saved = localStorage.getItem("materialOrderBoardOrders");
+    const orders = saved ? JSON.parse(saved) : [];
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    safeOrders.unshift(order);
+    localStorage.setItem("materialOrderBoardOrders", JSON.stringify(safeOrders));
+  } catch (error) {
+    console.warn("Could not save order to board.", error);
+  }
+}
+
+
+const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6eWkypZ_O_QoaldUrQvp3KfwsjoawjalQHLftzyI1e0hg2u1MbrQdlGTkDUnEYayFlA/exec";
+
+function saveOrderToGoogleSheet(order) {
+  try {
+    fetch(GOOGLE_SHEET_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(order)
+    }).catch(error => console.warn("Google Sheet save failed.", error));
+  } catch (error) {
+    console.warn("Google Sheet save failed.", error);
+  }
+}
+
+
+function makeOrderNumber() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  const short = String(Date.now()).slice(-5);
+  return `ORD-${y}${m}${d}-${short}`;
+}
+
+function fileNameSafe(value) {
+  return String(value || "Job").replace(/[\\/:*?"<>|]/g, "-").slice(0, 80);
+}
+
+async function imageToDataUrl(value) {
+  if (!value) return "";
+  if (String(value).startsWith("data:image/")) return value;
+
+  try {
+    const response = await fetch(value, { cache: "no-store" });
+    if (!response.ok) return "";
+    const blob = await response.blob();
+    return await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result || "");
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn("Could not load PDF letterhead image.", error);
+    return "";
+  }
+}
+
+async function getPdfLetterheadForEmail() {
+  const settings = getAppSettings();
+  const pdfLetterhead = mergePdfLetterhead(settings);
+  return {
+    ...pdfLetterhead,
+    leftLogo: await imageToDataUrl(pdfLetterhead.leftLogo),
+    rightLogo: await imageToDataUrl(pdfLetterhead.rightLogo)
+  };
+}
+
+function buildEmailBody(orderRecord) {
+  const lines = (orderRecord.items || []).map(item => `- ${item.name}: ${item.qty} ${item.unit}`).join("\n");
+  const companyName = orderRecord.pdfLetterhead && orderRecord.pdfLetterhead.companyName ? orderRecord.pdfLetterhead.companyName : (getAppSettings().companyTitle || "");
+  return `${companyName ? companyName + "\n" : ""}Material Order Request
+
+Job: ${orderRecord.job}
+Order #: ${orderRecord.orderNumber}
+Priority: ${orderRecord.priority}
+Requested By: ${orderRecord.requestedBy}
+Date: ${new Date(orderRecord.createdAt).toLocaleString()}
+
+Items Needed:
+${lines}
+
+Notes:
+${orderRecord.notes || "None"}
+
+A branded PDF material form is attached.
+
+Sent from Material Order App`;
+}
+
+async function sendEmail() {
   const prioritySelect = document.getElementById("reviewPrioritySelect");
   if (prioritySelect) selectedPriority = prioritySelect.value;
 
@@ -521,29 +855,60 @@ function sendEmail() {
     return;
   }
 
-  const lines = items.map(item => `- ${item.name}: ${item.qty} ${item.unit}`).join("\n");
+  const submitBtn = document.getElementById("submitEmailBtn");
+  const originalText = submitBtn ? submitBtn.innerHTML : "";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = "Sending PDF...";
+  }
 
-  const subject = `${selectedPriority === "Emergency" ? "🚨 EMERGENCY - " : selectedPriority === "Rush" ? "RUSH - " : ""}Material Order - ${job}`;
-  const body =
-`Material Order Request
+  const orderNumber = makeOrderNumber();
+  const orderRecord = {
+    id: `order-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    orderNumber,
+    job,
+    deliveryLocation: `${job} Jobsite`,
+    requestedBy,
+    priority: selectedPriority,
+    notes,
+    items,
+    status: "Pending",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
 
-Job: ${job}
-Priority: ${selectedPriority}
-Requested By: ${requestedBy}
+  saveOrderToBoard(orderRecord);
 
-Items Needed:
-${lines}
+  const subject = `${selectedPriority === "Emergency" ? "🚨 EMERGENCY - " : selectedPriority === "Rush" ? "RUSH - " : ""}Material Order - ${job} - ${orderNumber}`;
+  const body = buildEmailBody(orderRecord);
 
-Notes:
-${notes || "None"}
+  const payload = {
+    ...orderRecord,
+    toEmail: getJobEmail(job),
+    emailSubject: subject,
+    emailBody: body,
+    sendPdfEmail: true,
+    pdfLetterhead: await getPdfLetterheadForEmail()
+  };
 
-Sent from Material Order App`;
+  saveOrderToGoogleSheet(payload);
 
-  window.location.href = `mailto:${getJobEmail(job)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  cart = [];
+  renderCartPreview();
+  document.getElementById("notes").value = "";
+
+  alert("Order submitted. The job contact will receive the branded PDF attachment. Make sure your Google Apps Script is updated to v47.");
+  showScreen("jobsScreen");
+
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalText;
+  }
 }
 
 function setupApp() {
-  document.getElementById("jobSearch").addEventListener("input", renderJobs);
+  const jobSearch = document.getElementById("jobSearch");
+  if (jobSearch) jobSearch.addEventListener("input", renderJobs);
 
   const reviewBtn = document.getElementById("reviewOrderBtn");
   if (reviewBtn) reviewBtn.addEventListener("click", goReview);
@@ -651,3 +1016,69 @@ async function loadAppDataJsonDefaults() {
 document.addEventListener("DOMContentLoaded", () => {
   loadAppDataJsonDefaults();
 });
+
+
+
+/* V50 editable quantity real number input */
+document.addEventListener("input", event => {
+  const input = event.target.closest("[data-qty-input]");
+  if (!input) return;
+
+  const name = input.dataset.qtyInput;
+  let value = Number(input.value);
+
+  if (!Number.isFinite(value) || value < 0) value = 0;
+  value = Math.floor(value);
+
+  draftQty[name] = value;
+});
+
+document.addEventListener("change", event => {
+  const input = event.target.closest("[data-qty-input]");
+  if (!input) return;
+
+  const name = input.dataset.qtyInput;
+  let value = Number(input.value);
+
+  if (!Number.isFinite(value) || value < 0) value = 0;
+  value = Math.floor(value);
+
+  draftQty[name] = value;
+  input.value = value;
+});
+
+document.addEventListener("focusin", event => {
+  const input = event.target.closest("[data-qty-input]");
+  if (!input) return;
+  setTimeout(() => input.select(), 0);
+});
+
+
+/* V54 mobile qty input enter support */
+document.addEventListener("keydown", event => {
+  const input = event.target.closest(".qty-number-input");
+  if (!input) return;
+
+  if (event.key === "Enter") {
+    input.blur();
+  }
+});
+
+
+/* V55 mobile qty blur before add */
+document.addEventListener("touchstart", event => {
+  const addBtn = event.target.closest(".add-cart-btn");
+  if (!addBtn) return;
+
+  const row = addBtn.closest(".material-row");
+  const input = row ? row.querySelector(".qty-number-input") : null;
+  if (input) input.blur();
+}, { passive: true });
+
+
+/* V57 reset after add cart touch */
+document.addEventListener("touchend", event => {
+  const addBtn = event.target.closest(".add-cart-btn");
+  if (!addBtn) return;
+  setTimeout(forceResetAllQtyInputs, 500);
+}, { passive: true });

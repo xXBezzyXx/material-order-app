@@ -1,38 +1,71 @@
 {
-  "exportedAt": "2026-06-11T14:49:11.576Z",
+  "exportedAt": "2026-06-12T15:03:48.298Z",
   "settings": {
     "companyTitle": "AC General",
-    "mainPageTitle": "AC General",
-    "adminPassword": "password"
+    "mainPageTitle": "Jobs",
+    "adminPassword": "password",
+    "pdfLetterhead": {
+      "leftLogo": "pdf-assets/ac-general-logo.png",
+      "rightLogo": "pdf-assets/gator-100-logo.png",
+      "titleLine1": "Commercial Mechanical",
+      "titleLine2": "Industrial Refrigeration",
+      "address": "401 Agmac Avenue, Jacksonville, FL 32254",
+      "phoneFax": "Phone (904) 783-4200  Fax (904) 781-0806",
+      "website": "acgeneral.net",
+      "license": "CMC1250807",
+      "documentTitle": "MATERIAL PROCUREMENT REQUEST",
+      "footerMessage": "Thank you for using the Material Order App!",
+      "companyName": "AC General"
+    }
   },
   "jobs": [
     {
-      "name": "2650 DCPS Spring Park",
+      "name": "2560-0271 SJC Parks Sportsplex & Community Parks (WS) PARK 1",
       "active": true,
       "email": "nmcdonald@acgeneral.net"
     },
     {
-      "name": "2601 UF Jax Bay Street",
+      "name": "2580-0271 SJC Central Community Park (WS) PARK 2",
       "active": true,
       "email": "nmcdonald@acgeneral.net"
     },
     {
-      "name": "2644 NE Park #4",
+      "name": "2585-0121 SMA Central Receiving (A&W)",
+      "active": true,
+      "email": "tsimpson@acgeneral.net"
+    },
+    {
+      "name": "2587-0271 Northwest Community Park (WS) PARK 3",
       "active": true,
       "email": "nmcdonald@acgeneral.net"
     },
     {
-      "name": "2585 SMA",
-      "active": true,
-      "email": "mkenyon@acgeneral.net"
-    },
-    {
-      "name": "2455 RR",
+      "name": "2601-0265 UF Jax Bay St (Scorpio)",
       "active": true,
       "email": "nmcdonald@acgeneral.net"
     },
     {
-      "name": "Other Job",
+      "name": "2605-0291 SJC Fire Station 22 (DiMare)",
+      "active": true,
+      "email": "tsimpson@acgeneral.net"
+    },
+    {
+      "name": "2626-0261 Hogan Spring Glen Elementary School (Batson Cook)",
+      "active": true,
+      "email": "tsimpson@acgeneral.net"
+    },
+    {
+      "name": "2644-0271 SJC NE Comm Park Main Pkg 2C (WS) Park 4",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    },
+    {
+      "name": "2650-0261 DCPS Spring Park Elem School (STG)",
+      "active": true,
+      "email": "nmcdonald@acgeneral.net"
+    },
+    {
+      "name": "Other",
       "active": true,
       "email": "nmcdonald@acgeneral.net"
     }
@@ -42,10 +75,10 @@
       "label": "Hanging Material",
       "items": [
         {
-          "icon": "🔩",
+          "icon": "icons/nut.png",
           "name": "Nuts",
           "units": [
-            "Box",
+            "Box QTY 250",
             "Each"
           ],
           "options": [
@@ -55,7 +88,7 @@
           ]
         },
         {
-          "icon": "🔧",
+          "icon": "icons/bolt.png",
           "name": "Bolts",
           "units": [
             "Box",
@@ -66,10 +99,10 @@
           ]
         },
         {
-          "icon": "⚙️",
+          "icon": "icons/washer.png",
           "name": "Washers",
           "units": [
-            "Box",
+            "Box QTY 250",
             "Each"
           ],
           "options": [
@@ -79,23 +112,23 @@
           ]
         },
         {
-          "icon": "➖",
+          "icon": "icons/allthread.png",
           "name": "All Thread",
           "units": [
-            "Bundle",
+            "Bundle QTY 25",
             "Stick"
           ],
           "options": [
-            "1/4\"",
-            "3/8\"",
-            "1/2\""
+            "1/4\" x 10'",
+            "3/8\" x 10'",
+            "1/2\" x 10'"
           ]
         },
         {
-          "icon": "▰",
+          "icon": "icons/unistrut.png",
           "name": "Unistrut",
           "units": [
-            "Bundle",
+            "Bundle QTY 500'",
             "Each"
           ],
           "options": [
@@ -104,10 +137,10 @@
           ]
         },
         {
-          "icon": "⛓️",
+          "icon": "icons/beamclamp.png",
           "name": "Beam Clamps",
           "units": [
-            "Box",
+            "Box QTY 100",
             "Each"
           ],
           "options": [
@@ -122,19 +155,19 @@
       "label": "Fasteners",
       "items": [
         {
-          "icon": "🪛",
+          "icon": "\ud83e\ude9b",
           "name": "Self Tapping Screws",
+          "units": [
+            "Box QTY 6000",
+            "Each"
+          ],
           "options": [
             "5/16\"",
             "#14 x 5\" Self-Drilling TEK 5 Curb Screw"
-          ],
-          "units": [
-            "Box",
-            "Each"
           ]
         },
         {
-          "icon": "🔩",
+          "icon": "\ud83d\udd29",
           "name": "Tapcons",
           "options": [
             "1/4\" - 1\"",
@@ -151,7 +184,7 @@
           ]
         },
         {
-          "icon": "🔧",
+          "icon": "\ud83d\udd27",
           "name": "Anchors",
           "units": [
             "Box",
@@ -164,7 +197,7 @@
       "label": "Duct Material",
       "items": [
         {
-          "icon": "🪣",
+          "icon": "icons/ductseal.png",
           "name": "Duct Seal",
           "units": [
             "Bucket",
@@ -172,7 +205,7 @@
           ]
         },
         {
-          "icon": "◻️",
+          "icon": "\u25fb\ufe0f",
           "name": "Foil Tape",
           "units": [
             "Each",
@@ -180,7 +213,7 @@
           ]
         },
         {
-          "icon": "〰️",
+          "icon": "icons/flexduct.png",
           "name": "Flex Duct",
           "options": [
             "6\"",
@@ -195,14 +228,14 @@
           ]
         },
         {
-          "icon": "🧱",
+          "icon": "\ud83e\uddf1",
           "name": "Duct Wrap",
           "units": [
             "Each"
           ]
         },
         {
-          "icon": "▣",
+          "icon": "\u25a3",
           "name": "Drive Cleat",
           "units": [
             "Bundle",
@@ -210,7 +243,7 @@
           ]
         },
         {
-          "icon": "▣",
+          "icon": "\u25a3",
           "name": "S-Lock",
           "units": [
             "Bundle",
@@ -218,7 +251,7 @@
           ]
         },
         {
-          "icon": "▣",
+          "icon": "\u25a3",
           "name": "Pittsburgh",
           "units": [
             "Bundle",
@@ -226,11 +259,11 @@
           ]
         },
         {
-          "icon": "📦",
+          "icon": "icons/ducthanger.png",
           "name": "Hanger Strap",
           "units": [
-            "Roll",
-            "Box"
+            "Bundle",
+            "Each"
           ]
         }
       ]
@@ -239,7 +272,7 @@
       "label": "Pipe & Fittings",
       "items": [
         {
-          "icon": "│",
+          "icon": "\u2502",
           "name": "Copper Pipe",
           "units": [
             "Stick",
@@ -248,7 +281,7 @@
           ]
         },
         {
-          "icon": "│",
+          "icon": "\u2502",
           "name": "PVC Pipe",
           "units": [
             "Stick",
@@ -257,7 +290,7 @@
           ]
         },
         {
-          "icon": "◯",
+          "icon": "\u25ef",
           "name": "Pipe Insulation",
           "units": [
             "Box",
@@ -266,7 +299,7 @@
           ]
         },
         {
-          "icon": "🪣",
+          "icon": "\ud83e\udea3",
           "name": "PVC Glue",
           "units": [
             "Can",
@@ -275,7 +308,7 @@
           ]
         },
         {
-          "icon": "🪣",
+          "icon": "\ud83e\udea3",
           "name": "Primer",
           "units": [
             "Can",
@@ -284,7 +317,7 @@
           ]
         },
         {
-          "icon": "🔧",
+          "icon": "\ud83d\udd27",
           "name": "Pipe Clamps",
           "units": [
             "Box",
@@ -297,34 +330,34 @@
       "label": "Tools & Consumables",
       "items": [
         {
-          "icon": "📌",
+          "icon": "icons/Pins.png",
           "name": "Pins",
+          "units": [
+            "Box QTY 100",
+            "Each"
+          ],
           "options": [
             "1\"",
             "1-1/4\"",
             "1-1/2\"",
             "2\""
-          ],
-          "units": [
-            "Box",
-            "Each"
           ]
         },
         {
-          "icon": "💥",
+          "icon": "icons/Shots.png",
           "name": "Shots",
+          "units": [
+            "Box QTY 100",
+            "Each"
+          ],
           "options": [
             "Green",
             "Yellow",
             "Red"
-          ],
-          "units": [
-            "Box",
-            "Each"
           ]
         },
         {
-          "icon": "🪚",
+          "icon": "icons/Sawzallblades.png",
           "name": "Sawzall Blades",
           "options": [
             "Metal",
@@ -337,61 +370,56 @@
           ]
         },
         {
-          "icon": "🌀",
+          "icon": "icons/Drillbits.png",
           "name": "Drill Bits",
+          "units": [
+            "Each"
+          ],
           "options": [
             "1/4\"",
             "3/8\"",
             "1/2\""
-          ],
-          "units": [
-            "Each",
-            "Pack"
           ]
         },
         {
-          "icon": "⭕",
+          "icon": "icons/holesaw.png",
           "name": "Hole Saws",
+          "units": [
+            "Each",
+            "Kit"
+          ],
           "options": [
             "2\"",
             "3\"",
             "4\"",
             "6\""
-          ],
+          ]
+        },
+        {
+          "icon": "icons/blue-wrap.png",
+          "name": "Blue Wrap",
           "units": [
             "Each"
-          ]
-        }
-      ]
-    },
-    "other": {
-      "label": "Other",
-      "items": [
-        {
-          "icon": "•••",
-          "name": "Other Item 1",
-          "units": [
-            "Each",
-            "Box",
-            "Bundle"
+          ],
+          "options": [
+            "24\"",
+            "36\""
           ]
         },
         {
-          "icon": "•••",
-          "name": "Other Item 2",
+          "icon": "icons/gloves.png",
+          "name": "Gloves",
           "units": [
-            "Each",
-            "Box",
-            "Bundle"
+            "Box QTY 12",
+            "Pair"
           ]
         },
         {
-          "icon": "•••",
-          "name": "Other Item 3",
+          "icon": "icons/Safteyglasses.png",
+          "name": "Safety Glasses",
           "units": [
-            "Each",
-            "Box",
-            "Bundle"
+            "Box QTY 12",
+            "Each"
           ]
         }
       ]

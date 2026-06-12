@@ -1,9 +1,24 @@
 const DEFAULT_PASSWORD = "password";
 
+const DEFAULT_PDF_LETTERHEAD = {
+  leftLogo: "pdf-assets/ac-general-logo.png",
+  rightLogo: "pdf-assets/gator-100-logo.png",
+  titleLine1: "Commercial Mechanical",
+  titleLine2: "Industrial Refrigeration",
+  address: "401 Agmac Avenue, Jacksonville, FL 32254",
+  phoneFax: "Phone (904) 783-4200  Fax (904) 781-0806",
+  website: "acgeneral.net",
+  license: "CMC1250807",
+  companyName: "AC General",
+  documentTitle: "MATERIAL PROCUREMENT REQUEST",
+  footerMessage: "Thank you for using the Material Order App!"
+};
+
 const DEFAULT_SETTINGS = {
   companyTitle: "AC General",
   mainPageTitle: "Jobs",
-  adminPassword: DEFAULT_PASSWORD
+  adminPassword: DEFAULT_PASSWORD,
+  pdfLetterhead: DEFAULT_PDF_LETTERHEAD
 };
 
 const DEFAULT_JOBS = [
@@ -68,15 +83,10 @@ const DEFAULT_CATEGORIES = {
       { icon: "💥", name: "Shots", options: ["Green", "Yellow", "Red"], units: ["Box", "Each"] },
       { icon: "🪚", name: "Sawzall Blades", options: ["Metal", "Demo", "Fine Tooth"], units: ["Pack", "Each"] },
       { icon: "🌀", name: "Drill Bits", options: ['1/4"', '3/8"', '1/2"'], units: ["Each", "Pack"] },
-      { icon: "⭕", name: "Hole Saws", options: ['2"', '3"', '4"', '6"'], units: ["Each"] }
-    ]
-  },
-  other: {
-    label: "Other",
-    items: [
-      { icon: "•••", name: "Other Item 1", units: ["Each", "Box", "Bundle"] },
-      { icon: "•••", name: "Other Item 2", units: ["Each", "Box", "Bundle"] },
-      { icon: "•••", name: "Other Item 3", units: ["Each", "Box", "Bundle"] }
+      { icon: "⭕", name: "Hole Saws", options: ['2"', '3"', '4"', '6"'], units: ["Each"] },
+      { icon: "icons/blue-wrap.png", name: "Blue Wrap", options: ['24"', '36"'], units: ["Roll", "Each"] },
+      { icon: "🧤", name: "Gloves", units: ["Box", "Pair", "Each"] },
+      { icon: "🥽", name: "Safety Glasses", units: ["Box", "Pair", "Each"] },
     ]
   }
 };
@@ -87,11 +97,11 @@ function copy(value) {
 
 function safeText(text) {
   return String(text || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .split("&").join("&amp;")
+    .split("<").join("&lt;")
+    .split(">").join("&gt;")
+    .split('"').join("&quot;")
+    .split("'").join("&#039;");
 }
 
 function getJSON(key, fallback) {
@@ -107,8 +117,13 @@ function setJSON(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+function mergePdfLetterhead(settings) {
+  return { ...DEFAULT_PDF_LETTERHEAD, ...(settings && settings.pdfLetterhead ? settings.pdfLetterhead : {}) };
+}
+
 function getSettings() {
-  return { ...DEFAULT_SETTINGS, ...getJSON("materialOrderSettings", DEFAULT_SETTINGS) };
+  const saved = getJSON("materialOrderSettings", DEFAULT_SETTINGS);
+  return { ...DEFAULT_SETTINGS, ...saved, pdfLetterhead: mergePdfLetterhead(saved) };
 }
 
 function saveSettings(settings) {
@@ -134,9 +149,22 @@ function saveCategories(categories) {
 }
 
 
-function showAdminHome() {
+function showAdminPage(pageId) {
   document.getElementById("adminScreen").classList.remove("hidden-admin");
-  document.getElementById("materialAdminScreen").classList.add("hidden-admin");
+  const materialScreen = document.getElementById("materialAdminScreen");
+  if (materialScreen) materialScreen.classList.add("hidden-admin");
+
+  document.querySelectorAll("#adminScreen .admin-page").forEach(page => {
+    page.classList.toggle("active-admin-page", page.id === pageId);
+  });
+
+  document.querySelectorAll(".admin-nav button[data-admin-page]").forEach(button => {
+    button.classList.toggle("active", button.dataset.adminPage === pageId);
+  });
+}
+
+function showAdminHome() {
+  showAdminPage("adminDashboardPage");
 }
 
 function showMaterialAdmin() {
@@ -152,6 +180,8 @@ function showAdmin() {
   if (materialScreen) materialScreen.classList.add("hidden-admin");
   loadSettingsForm();
   renderJobs();
+  renderAdminOrders();
+  showAdminPage("adminDashboardPage");
 }
 
 function login() {
@@ -179,7 +209,8 @@ function resetAdminLogin() {
   const settings = {
     companyTitle: "AC General",
     mainPageTitle: "Jobs",
-    adminPassword: DEFAULT_PASSWORD
+    adminPassword: DEFAULT_PASSWORD,
+    pdfLetterhead: DEFAULT_PDF_LETTERHEAD
   };
 
   saveSettings(settings);
@@ -196,9 +227,28 @@ function resetAdminLogin() {
   alert("Admin password reset to default.");
 }
 
+function setValueIfExists(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.value = value || "";
+}
+
 function loadSettingsForm() {
   const settings = getSettings();
-  document.getElementById("companyTitleInput").value = settings.companyTitle || "AC General";
+  const pdf = mergePdfLetterhead(settings);
+  document.getElementById("companyTitleInput").value = settings.companyTitle || DEFAULT_SETTINGS.companyTitle;
+  const main = document.getElementById("mainPageTitleInput");
+  if (main) main.value = settings.mainPageTitle || "Jobs";
+
+  setValueIfExists("pdfTitleLine1Input", pdf.titleLine1);
+  setValueIfExists("pdfTitleLine2Input", pdf.titleLine2);
+  setValueIfExists("pdfAddressInput", pdf.address);
+  setValueIfExists("pdfPhoneFaxInput", pdf.phoneFax);
+  setValueIfExists("pdfWebsiteInput", pdf.website);
+  setValueIfExists("pdfLicenseInput", pdf.license);
+  setValueIfExists("pdfCompanyNameInput", pdf.companyName || settings.companyTitle);
+  setValueIfExists("pdfDocumentTitleInput", pdf.documentTitle);
+  setValueIfExists("pdfFooterMessageInput", pdf.footerMessage);
+  updateLetterheadPreview();
 }
 
 function saveCompanyTitle() {
@@ -220,6 +270,72 @@ function saveCompanyTitle() {
   settings.mainPageTitle = mainPageTitle;
   saveSettings(settings);
   alert("App settings saved.");
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result || "");
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function updateLetterheadPreview() {
+  const settings = getSettings();
+  const pdf = mergePdfLetterhead(settings);
+  const left = document.getElementById("pdfLeftLogoPreview");
+  const right = document.getElementById("pdfRightLogoPreview");
+  if (left) left.src = pdf.leftLogo || DEFAULT_PDF_LETTERHEAD.leftLogo;
+  if (right) right.src = pdf.rightLogo || DEFAULT_PDF_LETTERHEAD.rightLogo;
+  const title = document.getElementById("letterheadPreviewTitle");
+  if (title) title.innerHTML = `${safeText(pdf.titleLine1 || "")}<br />${safeText(pdf.titleLine2 || "")}`;
+  const company = document.getElementById("letterheadPreviewCompany");
+  if (company) company.textContent = `${pdf.companyName || getSettings().companyTitle || "Company"} Material Order PDF`;
+}
+
+function getPdfLetterheadFromForm(existing) {
+  return {
+    ...mergePdfLetterhead({ pdfLetterhead: existing || {} }),
+    titleLine1: document.getElementById("pdfTitleLine1Input").value.trim() || DEFAULT_PDF_LETTERHEAD.titleLine1,
+    titleLine2: document.getElementById("pdfTitleLine2Input").value.trim() || DEFAULT_PDF_LETTERHEAD.titleLine2,
+    address: document.getElementById("pdfAddressInput").value.trim(),
+    phoneFax: document.getElementById("pdfPhoneFaxInput").value.trim(),
+    website: document.getElementById("pdfWebsiteInput").value.trim(),
+    license: document.getElementById("pdfLicenseInput").value.trim(),
+    companyName: document.getElementById("pdfCompanyNameInput").value.trim() || document.getElementById("companyTitleInput").value.trim() || DEFAULT_PDF_LETTERHEAD.companyName,
+    documentTitle: document.getElementById("pdfDocumentTitleInput").value.trim() || DEFAULT_PDF_LETTERHEAD.documentTitle,
+    footerMessage: document.getElementById("pdfFooterMessageInput").value.trim() || DEFAULT_PDF_LETTERHEAD.footerMessage
+  };
+}
+
+async function savePdfLetterhead() {
+  const settings = getSettings();
+  let pdf = getPdfLetterheadFromForm(settings.pdfLetterhead);
+
+  const leftInput = document.getElementById("pdfLeftLogoInput");
+  const rightInput = document.getElementById("pdfRightLogoInput");
+
+  if (leftInput && leftInput.files && leftInput.files[0]) {
+    pdf.leftLogo = await readFileAsDataUrl(leftInput.files[0]);
+  }
+
+  if (rightInput && rightInput.files && rightInput.files[0]) {
+    pdf.rightLogo = await readFileAsDataUrl(rightInput.files[0]);
+  }
+
+  settings.pdfLetterhead = pdf;
+  saveSettings(settings);
+  updateLetterheadPreview();
+  alert("PDF letterhead saved.");
+}
+
+function resetPdfLetterhead() {
+  const settings = getSettings();
+  settings.pdfLetterhead = { ...DEFAULT_PDF_LETTERHEAD };
+  saveSettings(settings);
+  loadSettingsForm();
+  alert("PDF letterhead reset to the default letterhead.");
 }
 
 function savePassword() {
@@ -458,11 +574,19 @@ function deleteMaterial(index) {
   renderMaterialsForAdmin();
 }
 
+function renderMaterialIcon(icon) {
+  const value = String(icon || "");
+  if (value.includes("/") || value.endsWith(".png") || value.endsWith(".jpg") || value.endsWith(".jpeg") || value.endsWith(".svg") || value.endsWith(".webp")) {
+    return `<img class="material-icon-img" src="${safeText(value)}" alt="" loading="lazy" />`;
+  }
+  return safeText(value);
+}
+
 function renderMaterialsForAdmin() {
   const categoryKey = document.getElementById("materialCategorySelect").value;
   const list = document.getElementById("materialManagerList");
   const categories = getCategories();
-  const items = categories[categoryKey]?.items || [];
+  const items = (categories[categoryKey] && categories[categoryKey].items) || [];
 
   if (!items.length) {
     list.innerHTML = "<p class='admin-note'>No materials in this category.</p>";
@@ -510,7 +634,107 @@ function renderMaterialsForAdmin() {
   });
 }
 
+
+function getOrders() {
+  try {
+    const saved = localStorage.getItem("materialOrderBoardOrders");
+    const orders = saved ? JSON.parse(saved) : [];
+    return Array.isArray(orders) ? orders : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOrders(orders) {
+  localStorage.setItem("materialOrderBoardOrders", JSON.stringify(orders));
+}
+
+function statusClass(status) {
+  return String(status || "Pending").toLowerCase();
+}
+
+function formatOrderDate(value) {
+  if (!value) return "";
+  try {
+    return new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  } catch {
+    return value;
+  }
+}
+
+function renderAdminOrders() {
+  const list = document.getElementById("adminOrdersList");
+  if (!list) return;
+
+  const orders = getOrders().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+  if (!orders.length) {
+    list.innerHTML = "<p class='admin-note'>No orders submitted yet.</p>";
+    return;
+  }
+
+  list.innerHTML = orders.map(order => `
+    <div class="admin-order-row">
+      <div class="admin-order-head">
+        <div>
+          <strong>${safeText(order.job || "Unknown Job")}</strong>
+          <span>Requested by ${safeText(order.requestedBy || "Unknown")} • ${safeText(formatOrderDate(order.createdAt))}</span>
+        </div>
+        <span class="status-badge ${statusClass(order.status)}">${safeText(order.status || "Pending")}</span>
+      </div>
+      <div class="admin-order-items">
+        ${(order.items || []).map(item => `<div>${safeText(item.name)} <b>${safeText(item.qty)} ${safeText(item.unit)}</b></div>`).join("")}
+      </div>
+      ${order.notes ? `<p class="admin-order-notes"><b>Notes:</b> ${safeText(order.notes)}</p>` : ""}
+      <div class="admin-order-actions">
+        <button type="button" class="status-pending" data-order-status="Pending" data-order-id="${safeText(order.id)}">Pending</button>
+        <button type="button" class="status-ordered" data-order-status="Ordered" data-order-id="${safeText(order.id)}">Ordered</button>
+        <button type="button" class="status-delivered" data-order-status="Delivered" data-order-id="${safeText(order.id)}">Delivered</button>
+        <button type="button" class="delete-order" data-delete-order="${safeText(order.id)}">Delete</button>
+      </div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll("[data-order-status]").forEach(button => {
+    button.addEventListener("click", () => updateOrderStatus(button.dataset.orderId, button.dataset.orderStatus));
+  });
+
+  document.querySelectorAll("[data-delete-order]").forEach(button => {
+    button.addEventListener("click", () => deleteAdminOrder(button.dataset.deleteOrder));
+  });
+}
+
+function updateOrderStatus(orderId, newStatus) {
+  const orders = getOrders();
+  const order = orders.find(item => item.id === orderId);
+  if (!order) return;
+
+  order.status = newStatus;
+  order.updatedAt = new Date().toISOString();
+  saveOrders(orders);
+  renderAdminOrders();
+}
+
+function deleteAdminOrder(orderId) {
+  const orders = getOrders();
+  const order = orders.find(item => item.id === orderId);
+  if (!order) return;
+
+  const label = `${order.job || "this order"} - ${order.requestedBy || "Unknown"}`;
+  if (!confirm(`Delete ${label}? This cannot be undone.`)) return;
+
+  saveOrders(orders.filter(item => item.id !== orderId));
+  renderAdminOrders();
+}
+
 function setupAdmin() {
+  document.querySelectorAll("[data-admin-page]").forEach(button => {
+    button.addEventListener("click", () => showAdminPage(button.dataset.adminPage));
+  });
+
+  const openMaterialCard = document.getElementById("openMaterialManagerCard");
+  if (openMaterialCard) openMaterialCard.addEventListener("click", showMaterialAdmin);
+
   document.getElementById("loginBtn").addEventListener("click", login);
   const resetButton = document.getElementById("resetAdminBtn");
   if (resetButton) {
@@ -529,6 +753,10 @@ function setupAdmin() {
 
   document.getElementById("resetJobsBtn").addEventListener("click", resetJobs);
   document.getElementById("saveCompanyTitleBtn").addEventListener("click", saveCompanyTitle);
+  const savePdfLetterheadBtn = document.getElementById("savePdfLetterheadBtn");
+  if (savePdfLetterheadBtn) savePdfLetterheadBtn.addEventListener("click", savePdfLetterhead);
+  const resetPdfLetterheadBtn = document.getElementById("resetPdfLetterheadBtn");
+  if (resetPdfLetterheadBtn) resetPdfLetterheadBtn.addEventListener("click", resetPdfLetterhead);
   document.getElementById("savePasswordBtn").addEventListener("click", savePassword);
 
   const openMaterialBtn = document.getElementById("openMaterialManagerBtn");
@@ -541,6 +769,13 @@ function setupAdmin() {
   document.getElementById("addMaterialBtn").addEventListener("click", addMaterial);
   document.getElementById("materialNameInput").addEventListener("keydown", event => {
     if (event.key === "Enter") addMaterial();
+  });
+
+  const refreshOrdersBtn = document.getElementById("refreshOrdersBtn");
+  if (refreshOrdersBtn) refreshOrdersBtn.addEventListener("click", renderAdminOrders);
+
+  window.addEventListener("storage", event => {
+    if (event.key === "materialOrderBoardOrders") renderAdminOrders();
   });
 
   if (sessionStorage.getItem("materialOrderAdmin") === "true") {
@@ -651,4 +886,122 @@ async function reloadUploadedAppData() {
 document.addEventListener("DOMContentLoaded", () => {
   const reloadBtn = document.getElementById("reloadAppDataBtn");
   if (reloadBtn) reloadBtn.addEventListener("click", reloadUploadedAppData);
+});
+
+
+
+/* V44 Google Sheet Admin Orders */
+const GOOGLE_SHEET_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx6eWkypZ_O_QoaldUrQvp3KfwsjoawjalQHLftzyI1e0hg2u1MbrQdlGTkDUnEYayFlA/exec";
+
+function parseSheetItems(value) {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatSheetDate(value) {
+  if (!value) return "";
+  try {
+    return new Date(value).toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  } catch {
+    return value;
+  }
+}
+
+function sheetStatusClass(status) {
+  return String(status || "Pending").toLowerCase();
+}
+
+async function loadAdminSheetOrders() {
+  const list = document.getElementById("adminOrdersList");
+  if (!list) return;
+
+  list.innerHTML = "<p class='admin-note'>Loading shared orders...</p>";
+
+  try {
+    const response = await fetch(GOOGLE_SHEET_WEB_APP_URL + "?v=" + Date.now());
+    const data = await response.json();
+    const orders = Array.isArray(data.orders) ? data.orders.reverse() : [];
+
+    if (!orders.length) {
+      list.innerHTML = "<p class='admin-note'>No orders submitted yet.</p>";
+      return;
+    }
+
+    list.innerHTML = orders.map(order => {
+      const items = parseSheetItems(order.items);
+      const itemHtml = items.length ? items.map(item => `
+        <div>${safeText(item.name || "Item")} <b>${safeText(item.qty || "")} ${safeText(item.unit || "")}</b></div>
+      `).join("") : "<div>No item details found.</div>";
+
+      const status = order.status || "Pending";
+
+      return `
+        <div class="admin-order-row">
+          <div class="admin-order-head">
+            <div>
+              <strong>${safeText(order.job || "Unknown Job")}</strong>
+              <span>Requested by ${safeText(order.requestedBy || "Unknown")} • ${safeText(formatSheetDate(order.timestamp))}</span>
+            </div>
+            <span class="status-badge ${sheetStatusClass(status)}">${safeText(status)}</span>
+          </div>
+
+          <div class="admin-order-items">
+            ${itemHtml}
+          </div>
+
+          ${order.notes ? `<p class="admin-order-notes"><b>Notes:</b> ${safeText(order.notes)}</p>` : ""}
+
+          <div class="admin-order-actions">
+            <button type="button" class="status-pending" data-sheet-status="Pending" data-sheet-id="${safeText(order.id)}">Pending</button>
+            <button type="button" class="status-ordered" data-sheet-status="Ordered" data-sheet-id="${safeText(order.id)}">Ordered</button>
+            <button type="button" class="status-delivered" data-sheet-status="Delivered" data-sheet-id="${safeText(order.id)}">Delivered</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    document.querySelectorAll("[data-sheet-status]").forEach(button => {
+      button.addEventListener("click", () => updateSheetOrderStatus(button.dataset.sheetId, button.dataset.sheetStatus));
+    });
+  } catch (error) {
+    console.error(error);
+    list.innerHTML = "<p class='admin-error'>Could not load shared orders. Check Google Apps Script permissions.</p>";
+  }
+}
+
+async function updateSheetOrderStatus(id, status) {
+  try {
+    await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "updateStatus",
+        id,
+        status
+      })
+    });
+
+    setTimeout(loadAdminSheetOrders, 800);
+  } catch (error) {
+    console.error(error);
+    alert("Could not update order status.");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const refreshBtn = document.getElementById("refreshAdminOrdersBtn");
+  if (refreshBtn) refreshBtn.addEventListener("click", loadAdminSheetOrders);
+  setTimeout(loadAdminSheetOrders, 500);
 });
